@@ -6,10 +6,11 @@ import { normalizeWorkMode } from '../utils/normalization.js';
 export const scrapeLinkedIn = async (keyword: string, location: string): Promise<Job[]> => {
     const jobs: Job[] = [];
     try {
-        const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&start=0`;
+        const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&f_TPR=r604800&start=0`;
         const response = await axios.get(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9'
             }
         });
 
@@ -60,7 +61,7 @@ export const scrapeLinkedIn = async (keyword: string, location: string): Promise
 export const scrapeIndeed = async (keyword: string, location: string): Promise<Job[]> => {
     const jobs: Job[] = [];
     try {
-        const url = `https://de.indeed.com/rss?q=${encodeURIComponent(keyword)}&l=${encodeURIComponent(location)}`;
+        const url = `https://de.indeed.com/rss?q=${encodeURIComponent(keyword)}&l=${encodeURIComponent(location)}&fromage=7`;
         const response = await axios.get(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -86,6 +87,7 @@ export const scrapeIndeed = async (keyword: string, location: string): Promise<J
                     url: link,
                     source: 'Indeed',
                     date_found: new Date().toISOString(),
+                    posted_at: $(element).find('pubDate').text().trim(),
                 });
             }
         });

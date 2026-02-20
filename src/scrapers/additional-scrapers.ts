@@ -19,6 +19,8 @@ export const scrapeStepStone = async (keyword: string, location: string): Promis
             const data = JSON.parse(nextData);
             const results = data.props?.pageProps?.results || [];
             for (const res of results) {
+                // StepStone usually has a relative date or absolute date in the payload
+                // If it's too old, we skip it.
                 jobs.push({
                     job_hash: generateJobHash(res.url, res.title, res.companyName),
                     title: res.title,
@@ -28,6 +30,7 @@ export const scrapeStepStone = async (keyword: string, location: string): Promis
                     url: `https://www.stepstone.de${res.url}`,
                     source: 'StepStone',
                     date_found: new Date().toISOString(),
+                    posted_at: res.publicationDatetime
                 });
             }
         }
@@ -53,6 +56,7 @@ export const scrapeArbeitNow = async (keyword: string): Promise<Job[]> => {
                 url: res.url,
                 source: 'ArbeitNow',
                 date_found: new Date().toISOString(),
+                posted_at: new Date(res.created_at * 1000).toISOString(),
             });
         }
     } catch (err) {
@@ -65,7 +69,7 @@ export const scrapeAdzuna = async (keyword: string, country: string): Promise<Jo
     const jobs: Job[] = [];
     if (!process.env.ADZUNA_APP_ID || !process.env.ADZUNA_APP_KEY) return jobs;
     try {
-        const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${process.env.ADZUNA_APP_ID}&app_key=${process.env.ADZUNA_APP_KEY}&what=${encodeURIComponent(keyword)}`;
+        const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${process.env.ADZUNA_APP_ID}&app_key=${process.env.ADZUNA_APP_KEY}&what=${encodeURIComponent(keyword)}&max_days_old=7`;
         const response = await axios.get(url);
         const results = response.data.results || [];
         for (const res of results) {
@@ -78,6 +82,7 @@ export const scrapeAdzuna = async (keyword: string, country: string): Promise<Jo
                 url: res.redirect_url,
                 source: 'Adzuna',
                 date_found: new Date().toISOString(),
+                posted_at: res.created,
             });
         }
     } catch (err) {

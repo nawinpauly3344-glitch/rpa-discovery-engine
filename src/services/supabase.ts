@@ -18,6 +18,7 @@ export interface Job {
     url: string;
     source: string;
     date_found: string;
+    posted_at?: string;
 }
 
 export const generateJobHash = (url: string, title: string, company: string): string => {

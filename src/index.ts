@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { saveJob } from './services/supabase.js';
 import { scrapeLinkedIn, scrapeIndeed } from './scrapers/core-scrapers.js';
 import { scrapeStepStone, scrapeArbeitNow, scrapeAdzuna } from './scrapers/additional-scrapers.js';
+import { isRecentJob } from './utils/normalization.js';
 
 dotenv.config();
 
@@ -34,6 +35,11 @@ async function runDiscovery() {
             const allJobs = results.flat();
 
             for (const job of allJobs) {
+                // Verification Layer: Ensure the job is actually from the last 7 days
+                if (!isRecentJob(job.posted_at)) {
+                    continue;
+                }
+
                 const success = await saveJob(job);
                 if (success) {
                     totalNew++;

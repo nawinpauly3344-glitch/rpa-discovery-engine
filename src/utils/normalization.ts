@@ -22,3 +22,15 @@ export const normalizeJobType = (type: string): string => {
     }
     return 'Other';
 };
+
+export const isRecentJob = (postedAt: string | undefined): boolean => {
+    if (!postedAt) return true; // Default to true if not provided (assume scraper filtered it)
+    try {
+        const postedDate = new Date(postedAt);
+        const now = new Date();
+        const diffDays = (now.getTime() - postedDate.getTime()) / (1000 * 3600 * 24);
+        return diffDays <= 7;
+    } catch (e) {
+        return true;
+    }
+};
